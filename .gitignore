@@ -1,6 +1,8 @@
 # Binaries and build artifacts
 /hcu-exporter
 /hcu-exporter-*.tar
+/dist/
+/dist-local/
 *.exe
 *.test
 *.out

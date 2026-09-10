@@ -207,7 +207,41 @@ go mod tidy
 go build -ldflags "-X 'main.version=<版本号>'" -o hcu-exporter ./cmd/hcu-exporter
 ```
 
-或使用项目脚本（编译 + 构建镜像 + 导出 tar 包）：
+只需要生成二进制及发布压缩包时，可以直接执行：
+
+```bash
+./package.sh
+```
+
+脚本会在 `dist/` 下生成：
+
+- `hcu-exporter`：可直接运行的二进制文件
+- `hcu-exporter-<版本>-linux-<架构>.tar.gz`：包含二进制、许可证和说明文件的发布包
+- 对应的 `.sha256` 校验文件
+
+默认版本为 `v3.0.0`，如需指定版本，可以执行：
+
+```bash
+VERSION=v3.1.0 ./package.sh
+```
+
+默认使用远程 Go Module 中的 `hcu-dcgm`。如果需要使用本地 `/home/chengdm/dcgm-dcu` 源码进行测试，可以执行：
+
+```bash
+./package-local.sh
+```
+
+该脚本通过临时 `go.mod` 配置 `replace`，不会修改当前工程的 `go.mod` 或 `go.sum`。默认从 `/home/chengdm/dcgm-dcu` 读取源码，并将产物写入 `dist-local/`，默认版本标记为 `v3.0.0-local`。如需指定其他本地 `dcgm` 路径或版本，可以执行：
+
+```bash
+DCGM_DIR=/path/to/dcgm-dcu \
+VERSION=v3.0.0-local-test \
+./package-local.sh
+```
+
+`package-local.sh` 会使用本地 `dcgm-dcu` 的 CGO 链接配置；如果本地 `dcgm-dcu` 已加入 `--enable-new-dtags`，生成的 exporter 应包含 `RUNPATH: [/opt/hyhal/lib]`，从而可以在运行阶段用 `LD_LIBRARY_PATH` 覆盖默认驱动目录。
+
+项目原有的 `build.sh` 用于编译二进制、构建 Docker 镜像并导出镜像 tar 包：
 
 ```bash
 ./build.sh
