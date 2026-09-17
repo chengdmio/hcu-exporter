@@ -26,6 +26,7 @@ Thumbs.db
 hs_err_pid*.log
 
 # Local scratch / private notes (not part of the release tree)
+cmd/hcu-exporter/dcuinfo/
 metrics.txt
 *.xlsx
 hcu-dcgm-master-*-合规-*.md

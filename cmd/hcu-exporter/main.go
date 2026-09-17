@@ -356,20 +356,7 @@ var (
 			}
 			return rate
 		},
-		"hcu_cu_sampled_usage": func(idx int) float64 {
-			rate, err := dcgm.HCUCUSampledUsage(idx, sampleDurationMsFlag)
-			if err != nil {
-				glog.Errorf("Get HCU CU Sampled Usage error: %v", err)
-			}
-			return rate
-		},
-		"hcu_wave_sampled_usage": func(idx int) float64 {
-			rate, err := dcgm.HCUWaveSampledUsage(idx, sampleDurationMsFlag)
-			if err != nil {
-				glog.Errorf("Get HCU Wave Sampled Usage error: %v", err)
-			}
-			return rate
-		},
+
 		"hcu_temp_mem": func(idx int) float64 {
 			temp, err := dcgm.MemoryTemperature(idx)
 			if err != nil {
@@ -384,20 +371,7 @@ var (
 			}
 			return temp
 		},
-		"hcu_cu_util": func(idx int) float64 {
-			rate, err := dcgm.DevCuUtil(idx, sampleDurationMsFlag)
-			if err != nil {
-				glog.Errorf("Get DevCuUtil error: %v", err)
-			}
-			return float64(rate)
-		},
-		"hcu_wave_util": func(idx int) float64 {
-			rate, err := dcgm.DevWaveUtil(idx, sampleDurationMsFlag)
-			if err != nil {
-				glog.Errorf("Get DevWaveUtil error: %v", err)
-			}
-			return float64(rate)
-		},
+
 		"hcu_sclk_max": func(idx int) float64 {
 			clk, err := dcgm.DevGfxClockMax(idx)
 			if err != nil {

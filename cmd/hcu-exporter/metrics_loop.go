@@ -136,6 +136,10 @@ func collectAllHCUMetrics(deviceInfos []dcgm.DeviceInfo) map[int]map[string]floa
 
 func collectDeviceMetricValues(info dcgm.DeviceInfo, out map[string]float64) {
 	pcieBandwidth, pcieBwFetched := dcgm.PcieBandwidthInfo{}, false
+	var cuUtilValue float64
+	cuUtilFetched := false
+	var waveUtilValue float64
+	waveUtilFetched := false
 	for _, metrics := range metricsList {
 		if collectECCMetric(info.DvInd, metrics, out) {
 			continue
@@ -172,6 +176,34 @@ func collectDeviceMetricValues(info dcgm.DeviceInfo, out map[string]float64) {
 			case "hcu_pcie_sent_mb":
 				out[metrics] = float64(pcieBandwidth.Sent)
 			}
+			continue
+		}
+		// hcu_cu_sampled_usage and hcu_cu_util both call rsmi_dev_cu_util_get with the same
+		// duration argument. Call once and share the result to avoid blocking twice per device.
+		if strings.EqualFold(metrics, "hcu_cu_sampled_usage") || strings.EqualFold(metrics, "hcu_cu_util") {
+			if !cuUtilFetched {
+				var err error
+				cuUtilValue, err = dcgm.HCUCUSampledUsage(info.DvInd, sampleDurationMsFlag)
+				if err != nil {
+					glog.Errorf("Get CU Util error: %v", err)
+				}
+				cuUtilFetched = true
+			}
+			out[metrics] = cuUtilValue
+			continue
+		}
+		// hcu_wave_sampled_usage and hcu_wave_util both call rsmi_dev_wave_util_get with the
+		// same duration argument. Call once and share the result to avoid blocking twice per device.
+		if strings.EqualFold(metrics, "hcu_wave_sampled_usage") || strings.EqualFold(metrics, "hcu_wave_util") {
+			if !waveUtilFetched {
+				var err error
+				waveUtilValue, err = dcgm.HCUWaveSampledUsage(info.DvInd, sampleDurationMsFlag)
+				if err != nil {
+					glog.Errorf("Get Wave Util error: %v", err)
+				}
+				waveUtilFetched = true
+			}
+			out[metrics] = waveUtilValue
 			continue
 		}
 		if metricsFunc, exist := hcuFunctionMap[metrics]; exist {
